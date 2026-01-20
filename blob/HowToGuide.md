@@ -777,218 +777,38 @@ https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP
 NETWORKING Client Input Action Send - Client Shell Input/Output (IO) Thread
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/Networking_Client.cs
 ````
-public void Thread_IO_Client(byte threadId)
-        {
-            Avril_FSD.ClientAssembly.Framework_Client obj = Avril_FSD.ClientAssembly.Program.Get_framework_Client();
-            bool doneOnce = false;
-            while (obj.Get_client().Get_execute().Get_execute_Control().Get_flag_SystemInitialised() == true)
-            {
-                if (doneOnce == false)
-                {
-                    doneOnce = true;
-                    obj.Get_client().Get_execute().Get_execute_Control().Set_flag_ThreadInitialised(obj, threadId, false);
-                }
-            }
-            while (obj.Get_client().Get_execute().Get_execute_Control().Get_exitApplication() == false)
-            {
-                StatusCallback status = (ref StatusInfo info) => {
-                    switch (info.connectionInfo.state)
-                    {
-                        case ConnectionState.None:
-                            break;
-
-                        case ConnectionState.Connected:
-                            Console.WriteLine("Client connected to server - ID: " + _connection);
-                            if (obj.Get_client().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_InputAction() == true)
-                            {
-                                System.Console.WriteLine("Thread[" + (threadId).ToString() + "] => IsLoaded_Stack_InputAction = " + obj.Get_client().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_InputAction());//TestBench
-                                Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTINPUTACTION.Write_Start(obj.Get_client().Get_execute().Get_program_WriteQue_C_IA(), 1);
-                                byte[] data = new byte[64];
-                                obj.Get_client().Get_data().Get_data_Control().Pop_Stack_InputAction(obj, obj.Get_client().Get_data().Get_input_Instnace().Get_FRONT_inputDoubleBuffer(obj), obj.Get_client().Get_data().Get_input_Instnace().Get_stack_Client_InputSend());
-                                obj.Get_client().Get_data().Flip_InBufferToWrite();
-                                obj.Get_client().Get_algorithms().Get_io_ListenRespond().Encode_NetworkingSteam_At_Client_Input(obj, obj.Get_client().Get_data().Get_input_Instnace().Get_BACK_inputDoubleBuffer(obj), data);
-                                _client_SOCKET.SendMessageToConnection(_connection, data);
-                                Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTINPUTACTION.Write_End(obj.Get_client().Get_execute().Get_program_WriteQue_C_IA(), 1);
-                            }
-                            break;
-
-                        case ConnectionState.ClosedByPeer:
-                        case ConnectionState.ProblemDetectedLocally:
-                            _client_SOCKET.CloseConnection(_connection);
-                            Console.WriteLine("Client disconnected from server");
-                            break;
-                    }
-                };
-                _utils = new NetworkingUtils();
-                _utils.SetStatusCallback(status);
-                    
-                _connection = _client_SOCKET.Connect(ref address_SERVER);
-                System.Console.WriteLine("Thread[" + (threadId).ToString() + "] :: _connection = " + (_connection).ToString());//TestBench
-#if VALVESOCKETS_SPAN
-MessageCallback message = (in NetworkingMessage netMessage) => {
-	Console.WriteLine("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
-};
-#else
-                const int maxMessages = 20;
-                NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
-#endif
-                System.Console.WriteLine("Thread[" + (threadId).ToString() + "] :: ALPHA");//TestBench
-                while (!Console.KeyAvailable)
-                {
-                    System.Console.WriteLine("Thread[" + (threadId).ToString() + "] :: BRAVO");//TestBench
-                    _client_SOCKET.RunCallbacks();
-
-#if VALVESOCKETS_SPAN
-	client.ReceiveMessagesOnConnection(connection, message, 20);
-#else
-                    int netMessagesCount = _client_SOCKET.ReceiveMessagesOnConnection(_connection, netMessages, maxMessages);
-                    System.Console.WriteLine("Thread[" + (threadId).ToString() + "] :: netMessagesCount = " + netMessagesCount);//TestBench
-                    if (netMessagesCount > 0)
-                    {
-                        for (int i = 0; i < netMessagesCount; i++)
-                        {
-                            ref NetworkingMessage netMessage = ref netMessages[i];
-
-                            Console.WriteLine("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
-                            Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTOUTPUTRECIEVE.Write_Start(obj.Get_client().Get_execute().Get_program_WriteQue_C_OR(), 1);
-                            byte[] buffer = new byte[1024];
-                            netMessage.CopyTo(buffer);
-                            obj.Get_client().Get_data().Get_output_Instnace().Get_BACK_outputDoubleBuffer(obj).Set_praiseOutputBuffer_Subset(buffer[0]);
-                            obj.Get_client().Get_algorithms().Get_io_ListenRespond().Decode_NetworkingSteam_At_Client_Recieve(obj, obj.Get_client().Get_data().Get_output_Instnace().Get_BACK_outputDoubleBuffer(obj), buffer);
-                            obj.Get_client().Get_data().Flip_OutBufferToWrite();
-                            obj.Get_client().Get_data().Get_data_Control().Push_Stack_Client_OutputRecieve(obj, obj.Get_client().Get_data().Get_output_Instnace().Get_stack_Client_OutputRecieves(), obj.Get_client().Get_data().Get_output_Instnace().Get_FRONT_outputDoubleBuffer(obj));
-                            if (obj.Get_client().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_OutputRecieve())
-                            {
-                                if (Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Get_State_LaunchBit(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C()))
-                                {
-                                    Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Request_Wait_Launch(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C(), Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Get_coreId_To_Launch(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C()));
-                                }
-                            }
-                            Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTOUTPUTRECIEVE.Write_End(obj.Get_client().Get_execute().Get_program_WriteQue_C_OR(), 1);
-                            netMessage.Destroy();
-                        }
-                    }
-#endif
-
-                    Thread.Sleep(15);
-                }
-            }
-        }
-
+	if (obj.Get_client().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_InputAction() == true)
+	{
+		Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTINPUTACTION.Write_Start(obj.Get_client().Get_execute().Get_program_WriteQue_C_IA(), 1);
+		byte[] data = new byte[64];
+		obj.Get_client().Get_data().Get_data_Control().Pop_Stack_InputAction(obj, obj.Get_client().Get_data().Get_input_Instnace().Get_FRONT_inputDoubleBuffer(obj), obj.Get_client().Get_data().Get_input_Instnace().Get_stack_Client_InputSend());
+		obj.Get_client().Get_data().Flip_InBufferToWrite();
+		obj.Get_client().Get_algorithms().Get_io_ListenRespond().Encode_NetworkingSteam_At_Client_Input(obj, obj.Get_client().Get_data().Get_input_Instnace().Get_BACK_inputDoubleBuffer(obj), data);
+		_client_SOCKET.SendMessageToConnection(_connection, data);
+		Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTINPUTACTION.Write_End(obj.Get_client().Get_execute().Get_program_WriteQue_C_IA(), 1);
+	}
 ````
-
-Launch A Concurrency Thread
 
 NETWORKING Server Input Action Recieve - Server Shell Input/Output (IO) Thread
+https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ServerAssembly/Networking_Server.cs
 ````
-public void Thread_IO_Server(byte threadId)
-        {
-            Avril_FSD.ServerAssembly.Framework_Server obj = Avril_FSD.ServerAssembly.Program.Get_framework_Server();
-            bool doneOnce = false;
-            while (obj.Get_server().Get_execute().Get_execute_Control().Get_flag_isInitialised_ServerShell(obj) == true)
-            {
-                if (doneOnce == false)
-                {
-                    doneOnce = true;
-                    obj.Get_server().Get_execute().Get_execute_Control().Set_flag_ThreadInitialised(threadId, false);
-                }
-            }
-            while (obj.Get_server().Get_execute().Get_execute_Control().Get_exitApplication() == false)
-            {
-                //System.Console.WriteLine("Thread[" + (threadId).ToString() + "] ALPHA");
-                uint pollGroup = _server_SOCKET.CreatePollGroup();
+	Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_Start(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
+	byte[] buffer = new byte[1024];
+	netMessage.CopyTo(buffer);
+	Avril_FSD.Library_For_Server_Concurrency.Select_Set_Intput_Subset(obj.Get_server().Get_execute().Get_program_ServerConcurrency(), buffer[0]);
+	obj.Get_server().Get_algorithms().Get_io_ListenRespond().Decode_NetworkingSteam_At_Server_Input(obj, obj.Get_server().Get_data().Get_input_Instnace().Get_FRONT_inputDoubleBuffer(obj), buffer);
+	Avril_FSD.Library_For_Server_Concurrency.Flip_InBufferToWrite(obj.Get_server().Get_execute().Get_program_ServerConcurrency());
+	Avril_FSD.Library_For_Server_Concurrency.Push_Stack_InputPraises(obj.Get_server().Get_execute().Get_program_ServerConcurrency());
+	if (Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Get_Flag_ConcurrentCoreState(obj.Get_server().Get_execute().Get_program_ServerConcurrency(),
+````
 
-                StatusCallback status = (ref StatusInfo info) => {
-                    switch (info.connectionInfo.state)
-                    {
-                        case ConnectionState.None:
-                            break;
-
-                        case ConnectionState.Connecting:
-                            _server_SOCKET.AcceptConnection(info.connection);
-                            _server_SOCKET.SetConnectionPollGroup(pollGroup, info.connection);
-                            break;
-
-                        case ConnectionState.Connected:
-                            System.Console.WriteLine("Thread[" + (threadId).ToString() + "] => Get_flag_IsLoaded_Stack_OutputAction = " + obj.Get_server().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_OutputAction());//TestBench
-                            if (obj.Get_server().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_OutputAction())
-                            {
-                                Console.WriteLine("Client connected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
-                                Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVEROUTPUTRECIEVE.Write_Start(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerOutputRecieve(), 0);
-                                byte[] data = new byte[64];
-                                var output = obj.Get_server().Get_data().Get_output_Instnace().Get_FRONT_outputDoubleBuffer(obj);
-                                output.Get_output_Control().SelectSetOutputSubset(obj, output.Get_praiseEventId());
-                                obj.Get_server().Get_algorithms().Get_io_ListenRespond().Encode_NetworkingSteam_At_Server_Output(obj, output, data);
-                                address_CLIENT.SetAddress(info.connectionInfo.address.GetIP(), 27001);
-                                uint connection = _server_SOCKET.Connect(ref address_CLIENT);
-                                _server_SOCKET.SendMessageToConnection(connection, data);
-                                _server_SOCKET.CloseConnection(info.connection);
-                                Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVEROUTPUTRECIEVE.Write_End(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerOutputRecieve(), 0);
-                            }
-                            break;
-                    }
-                };
-
-                _utils.SetStatusCallback(status);
-
-
-
-#if VALVESOCKETS_SPAN
-MessageCallback message = (in NetworkingMessage netMessage) => {
-	Console.WriteLine("Message received from - ID: " + netMessage.connection + ", Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
-};
-#else
-                const int maxMessages = 20;
-
-                NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
-#endif
-
-                while (!Console.KeyAvailable)
-                {
-                    _server_SOCKET.RunCallbacks();
-
-#if VALVESOCKETS_SPAN
-	server.ReceiveMessagesOnPollGroup(pollGroup, message, 20);
-#else
-                    int netMessagesCount = _server_SOCKET.ReceiveMessagesOnPollGroup(pollGroup, netMessages, maxMessages);
-
-                    if (netMessagesCount > 0)
-                    {
-                        for (int i = 0; i < netMessagesCount; i++)
-                        {
-                            ref NetworkingMessage netMessage = ref netMessages[i];
-
-                            Console.WriteLine("Message received from - ID: " + netMessage.connection + ", Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
-                            Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_Start(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
-                            byte[] buffer = new byte[1024];
-                            netMessage.CopyTo(buffer);
-                            Avril_FSD.Library_For_Server_Concurrency.Select_Set_Intput_Subset(obj.Get_server().Get_execute().Get_program_ServerConcurrency(), buffer[0]);
-                            obj.Get_server().Get_algorithms().Get_io_ListenRespond().Decode_NetworkingSteam_At_Server_Input(obj, obj.Get_server().Get_data().Get_input_Instnace().Get_FRONT_inputDoubleBuffer(obj), buffer);
-                            Avril_FSD.Library_For_Server_Concurrency.Flip_InBufferToWrite(obj.Get_server().Get_execute().Get_program_ServerConcurrency());
-                            Avril_FSD.Library_For_Server_Concurrency.Push_Stack_InputPraises(obj.Get_server().Get_execute().Get_program_ServerConcurrency());
-                            if (Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Get_Flag_ConcurrentCoreState(obj.Get_server().Get_execute().Get_program_ServerConcurrency(), Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Get_coreId_To_Launch(obj.Get_server().Get_execute().Get_program_ServerConcurrency())) == Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Get_Flag_Idle(obj.Get_server().Get_execute().Get_program_ServerConcurrency()))
-                            {
-                                Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Request_Wait_Launch(obj.Get_server().Get_execute().Get_program_ServerConcurrency(), Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Get_coreId_To_Launch(obj.Get_server().Get_execute().Get_program_ServerConcurrency()));
-                            }
-                            Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_End(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
-                            netMessage.Destroy();
-                        }
-                    }
-#endif
-                    Thread.Sleep(15);
-                }
-                _server_SOCKET.DestroyPollGroup(pollGroup);
-            }
-        }
-        public NetworkingUtils Get_utils()
-        {
-            return _utils;
-        }
-        public uint Get_pollGroup()
-        {
-            return _pollGroup;
-        }
-    }
+Launch Servver Concurrency
+````
+Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Get_coreId_To_Launch(obj.Get_server().Get_execute().Get_program_ServerConcurrency())) == Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Get_Flag_Idle(obj.Get_server().Get_execute().Get_program_ServerConcurrency()))
+	{
+		Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Request_Wait_Launch(obj.Get_server().Get_execute().Get_program_ServerConcurrency(), Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Get_coreId_To_Launch(obj.Get_server().Get_execute().Get_program_ServerConcurrency()));
+	}
+	Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_End(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
 ````
 
 LIB_Concurrent_IO_Server - STACK Server Launch Concurreny
@@ -1076,7 +896,7 @@ Thread IO Server Shell - Thread_IO_Server Output
 		Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVEROUTPUTRECIEVE.Write_End(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_Serv
 ````
 
-Thread IO Client Shell - Thread_IO_Client Input
+Thread IO Client Shell - Thread_IO_Client Input Send
 ````
 		Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_Start(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
 		byte[] buffer = new byte[1024];
@@ -1090,4 +910,68 @@ Thread IO Client Shell - Thread_IO_Client Input
 			Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Request_Wait_Launch(obj.Get_server().Get_execute().Get_program_ServerConcurrency(), Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_SERVER.Get_coreId_To_Launch(obj.Get_server().Get_execute().Get_program_ServerConcurrency()));
 		}
 		Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_End(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
+````
+
+STACK Client Shell Output Recieve
+line 8:	private Avril_FSD.ClientAssembly.Outputs.Output[] _doublebuffer_Client_Output_Recieve;
+https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/engine/Output_Instance.cs
+
+Thread IO Client Shell - Thread_IO_Client Output Recieve
+https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/Networking_Client.cs
+````
+ Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTOUTPUTRECIEVE.Write_Start(obj.Get_client().Get_execute().Get_program_WriteQue_C_OR(), 1);
+                            byte[] buffer = new byte[1024];
+                            netMessage.CopyTo(buffer);
+                            obj.Get_client().Get_data().Get_output_Instnace().Get_BACK_outputDoubleBuffer(obj).Set_praiseOutputBuffer_Subset(buffer[0]);
+                            obj.Get_client().Get_algorithms().Get_io_ListenRespond().Decode_NetworkingSteam_At_Client_Recieve(obj, obj.Get_client().Get_data().Get_output_Instnace().Get_BACK_outputDoubleBuffer(obj), buffer);
+                            obj.Get_client().Get_data().Flip_OutBufferToWrite();
+                            obj.Get_client().Get_data().Get_data_Control().Push_Stack_Client_OutputRecieve(obj, obj.Get_client().Get_data().Get_output_Instnace().Get_stack_Client_OutputRecieves(), obj.Get_client().Get_data().Get_output_Instnace().Get_FRONT_outputDoubleBuffer(obj));
+                            if (obj.Get_client().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_OutputRecieve())
+                            {
+                                if (Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Get_State_LaunchBit(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C()))
+                                {
+                                    Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Request_Wait_Launch(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C(), Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Get_coreId_To_Launch(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C()));
+                                }
+                            }
+                            Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTOUTPUTRECIEVE.Write_End(obj.Get_client().Get_execute().Get_program_WriteQue_C_OR(), 1);
+````
+
+Client Concurrency
+````
+public void Thread_Concurrent(byte threadId)
+        {
+            byte _concurrentThreadId = (byte)(threadId - (byte)2);
+            Avril_FSD.ClientAssembly.Framework_Client obj = Avril_FSD.ClientAssembly.Program.Get_framework_Client();
+            obj.Get_client().Get_execute().Get_execute_Control().Set_flag_ThreadInitialised(obj, threadId, false);
+            bool doneOnce_A = false;
+            while (obj.Get_client().Get_execute().Get_execute_Control().Get_flag_SystemInitialised() == true)
+            {
+                if (doneOnce_A == false)
+                {
+                    doneOnce_A = true;
+                    obj.Get_client().Get_execute().Get_execute_Control().Set_flag_ThreadInitialised(obj, threadId, false);
+                }
+            }
+            while (obj.Get_client().Get_execute().Get_execute_Control().Get_exitApplication() == false)
+            {
+                if (obj.Get_client().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_OutputRecieve())
+                {
+                    System.Console.WriteLine("Thread[" + (threadId).ToString() + "] => Get_flag_IsLoaded_Stack_OutputRecieve = " + obj.Get_client().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_OutputRecieve());//TestBench
+                    Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTOUTPUTRECIEVE.Write_Start(obj.Get_client().Get_execute().Get_program_WriteQue_C_OR(), (byte)(_concurrentThreadId + (byte)1));
+                    obj.Get_client().Get_algorithms().Get_concurrent(_concurrentThreadId).Get_concurrent_Control().SelectSet_Algorithm_Subset(obj, obj.Get_client().Get_data().Get_output_Instnace().Get_BACK_outputDoubleBuffer(obj).Get_praiseEventId(), _concurrentThreadId);
+                    obj.Get_client().Get_data().Get_data_Control().Pop_Stack_OutputRecieve(obj, obj.Get_client().Get_data().Get_output_Instnace().Get_BACK_outputDoubleBuffer(obj), obj.Get_client().Get_data().Get_output_Instnace().Get_stack_Client_OutputRecieves());
+                    obj.Get_client().Get_data().Flip_OutBufferToWrite();
+                    obj.Get_client().Get_data().Get_data_Control().Do_Store_PraiseOutputRecieve_To_GameInstanceData(obj, obj.Get_client().Get_data().Get_output_Instnace().Get_stack_Client_OutputRecieves().ElementAt(1));
+                    obj.Get_client().Get_data().Get_data_Control().Set_isPraiseActive(obj.Get_client().Get_data().Get_output_Instnace().Get_FRONT_outputDoubleBuffer(obj).Get_praiseEventId(), false);
+                    Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Thread_End(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C(), _concurrentThreadId);
+                    if (obj.Get_client().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_OutputRecieve())
+                    {
+                        if(Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Get_State_LaunchBit(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C()) == Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Get_Flag_Idle(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C()))
+                        {
+                            Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Request_Wait_Launch(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C(), Avril_FSD.Library_For_LaunchEnableForConcurrentThreadsAt_CLIENT.Get_coreId_To_Launch(obj.Get_client().Get_execute().Get_program_ConcurrentQue_C()));
+                        }
+                    }
+                    Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTOUTPUTRECIEVE.Write_End(obj.Get_client().Get_execute().Get_program_WriteQue_C_OR(), (byte)(_concurrentThreadId + (byte)1));
+                }
+            }
 ````

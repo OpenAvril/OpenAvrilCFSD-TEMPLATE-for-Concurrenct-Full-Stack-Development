@@ -850,6 +850,70 @@ MessageCallback message = (in NetworkingMessage netMessage) => {
         }
     }
 ````
+Encode NetworkingSteam At Server Output
+https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ServerAssembly/engine/IO_Listen_Respond.cs
+````
+        public void Encode_NetworkingSteam_At_Server_Output(Avril_FSD.ServerAssembly.Framework_Server obj, Avril_FSD.ServerAssembly.Outputs.Output output, byte[] data)
+        {
+            data[0] = output.Get_praiseEventId();
+            data[1] = output.Get_out_playerId();
+            switch (output.Get_praiseEventId())
+            {
+                case 0:
+                    break;
+
+                case 1:
+                    var subset = (Avril_FSD.ServerAssembly.Praise_Files.Praise1_Output)output.GetOutputBufferSubset();
+                    byte[] tempFloat = BitConverter.GetBytes(subset.Get_fowards().X);
+                    for (byte index = 0; index < tempFloat.Length; index++)
+                    {
+                        data[index + 2] = tempFloat[index];
+                    }
+                    tempFloat = BitConverter.GetBytes(subset.Get_fowards().Y);
+                    for (byte index = 0; index < tempFloat.Length; index++)
+                    {
+                        data[index + 6] = tempFloat[index];
+                    }
+                    tempFloat = BitConverter.GetBytes(subset.Get_fowards().Z);
+                    for (byte index = 0; index < tempFloat.Length; index++)
+                    {
+                        data[index + 10] = tempFloat[index];
+                    }
+                    tempFloat = BitConverter.GetBytes(subset.Get_right().X);
+                    for (byte index = 0; index < tempFloat.Length; index++)
+                    {
+                        data[index + 14] = tempFloat[index];
+                    }
+                    tempFloat = BitConverter.GetBytes(subset.Get_right().Y);
+                    for (byte index = 0; index < tempFloat.Length; index++)
+                    {
+                        data[index + 18] = tempFloat[index];
+                    }
+                    tempFloat = BitConverter.GetBytes(subset.Get_right().Z);
+                    for (byte index = 0; index < tempFloat.Length; index++)
+                    {
+                        data[index + 22] = tempFloat[index];
+                    }
+                    tempFloat = BitConverter.GetBytes(subset.Get_up().X);
+                    for (byte index = 0; index < tempFloat.Length; index++)
+                    {
+                        data[index + 26] = tempFloat[index];
+                    }
+                    tempFloat = BitConverter.GetBytes(subset.Get_up().Y);
+                    for (byte index = 0; index < tempFloat.Length; index++)
+                    {
+                        data[index + 30] = tempFloat[index];
+                    }
+                    tempFloat = BitConverter.GetBytes(subset.Get_up().Z);
+                    for (byte index = 0; index < tempFloat.Length; index++)
+                    {
+                        data[index + 34] = tempFloat[index];
+                    }
+                    break;
+
+            }
+        }
+````
 Do Stack Server Input Action Praise Event Id
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ServerAssembly/engine/IO_Listen_Respond.cs
 ````
@@ -871,10 +935,10 @@ https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP
             }
         }
 ````
-Network Recieve Push To Client Stack Output Recieve
-https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/engine/IO_Listen_Respond.cs
+Decode NetworkingSteam At Client Output Recieve
+https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ServerAssembly/engine/IO_Listen_Respond.cs
 ````
-public void Decode_NetworkingSteam_At_Client_Recieve(Avril_FSD.ClientAssembly.Framework_Client obj, Avril_FSD.ClientAssembly.Outputs.Output output, byte[] buffer)
+        public void Decode_NetworkingSteam_At_Client_Recieve(Avril_FSD.ClientAssembly.Framework_Client obj, Avril_FSD.ClientAssembly.Outputs.Output output, byte[] buffer)
         {
             output.Set_praiseEventId(buffer[0]);
             output.Set_playerId(buffer[1]);

@@ -1,4 +1,5 @@
 Framwork Loading
+https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/engine/Execute.cs
 ````
 namespace Avril_FSD.ClientAssembly
 {
@@ -127,8 +128,8 @@ namespace Avril_FSD.ClientAssembly
     }   
 }
 ````
-
 Client Periphean Scanner
+https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/gameInstance/Game_Instance.cs
 ````
 namespace Avril_FSD.ClientAssembly
 {
@@ -411,6 +412,7 @@ namespace Avril_FSD.ClientAssembly
 }
 ````
 Stack at Client Input Action
+https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/engine/IO_Listen_Respond.cs
 ````
         public void Encode_NetworkingSteam_At_Client_Input(Avril_FSD.ClientAssembly.Framework_Client obj, Avril_FSD.ClientAssembly.Inputs.Input input, byte[] data)
         {

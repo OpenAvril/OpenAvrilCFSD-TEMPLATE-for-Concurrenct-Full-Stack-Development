@@ -806,7 +806,7 @@ https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP
 	Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_End(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
 ````
 
-LIB_Concurrent_IO_Server - STACK Server Launch Concurreny
+LIB_Concurrent_IO_Server - THREAD Server Concurreny
 ````
 void Avril_FSD::Concurrent::Thread_Concurrency(Avril_FSD::Framework_Server* obj, __int8 concurrent_coreId)
 {

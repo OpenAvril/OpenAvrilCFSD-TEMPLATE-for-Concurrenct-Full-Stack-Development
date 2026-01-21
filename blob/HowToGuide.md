@@ -1,4 +1,6 @@
-Execute Server
+# Avril - OpenCFSD (Concurrent Full Stack Development)
+
+## Execute Server
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ServerAssembly/engine/Execute.cs
 ````
 namespace Avril_FSD.ServerAssembly
@@ -92,7 +94,7 @@ namespace Avril_FSD.ServerAssembly
 }
 ````
 
-Execute Client 
+## Execute Client 
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/engine/Execute.cs
 ````
 namespace Avril_FSD.ClientAssembly
@@ -223,7 +225,7 @@ namespace Avril_FSD.ClientAssembly
 }
 ````
 
-Loading Server Shell Framework
+## Loading Server Shell Framework
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ServerAssembly/gameInstance/Game_Instance.cs
 ````
 namespace Avril_FSD.ServerAssembly
@@ -482,7 +484,7 @@ namespace Avril_FSD.ServerAssembly
 }
 ````
 
-Loading Client Shell Framwork - Scanner For Mouse and Keyboard
+## Loading Client Shell Framwork - Scanner For Mouse and Keyboard
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/gameInstance/Game_Instance.cs
 ````
 namespace Avril_FSD.ClientAssembly
@@ -770,11 +772,11 @@ namespace Avril_FSD.ClientAssembly
 }
 ````
 
-STACK Client Input Action
+## STACK: Client Input Action.
 line 9:	private List<Avril_FSD.ClientAssembly.Inputs.Input> _stack_Client_InputSend;
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/engine/Input_Instance.cs
 
-NETWORKING Client Input Action Send - Client Shell Input/Output (IO) Thread
+## THREAD: NETWORKING Client Input Action Send.
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/Networking_Client.cs
 ````
 	if (obj.Get_client().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_InputAction() == true)
@@ -789,7 +791,7 @@ https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP
 	}
 ````
 
-NETWORKING Server Input Action Recieve - Server Shell Input/Output (IO) Thread
+## THREAD: NETWORKING Server Input Action Recieve.
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ServerAssembly/Networking_Server.cs
 ````
 	Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_Start(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
@@ -806,7 +808,8 @@ https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP
 	Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_End(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
 ````
 
-LIB_Concurrent_IO_Server - THREAD Server Concurreny
+# LIB_Concurrent_IO_Server 
+## THREAD: Server Concurreny Loop.
 ````
 void Avril_FSD::Concurrent::Thread_Concurrency(Avril_FSD::Framework_Server* obj, __int8 concurrent_coreId)
 {
@@ -871,11 +874,11 @@ void Avril_FSD::Concurrent::Thread_Concurrency(Avril_FSD::Framework_Server* obj,
 }
 ````
 
-STACK Server Shell Output Action
+## STACK Server Shell Output Action
 line 11: 	private List<Avril_FSD.ServerAssembly.Outputs.Output> _stack_Client_OutputRecieves;
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ServerAssembly/engine/Data.cs
 
-Thread IO Server Shell - Thread_IO_Server Output
+## THREAD: NETWORKING Server Output Action Send.
 ````
 	if (obj.Get_server().Get_data().Get_data_Control().Get_flag_IsLoaded_Stack_OutputAction())
 	{
@@ -891,7 +894,7 @@ Thread IO Server Shell - Thread_IO_Server Output
 		Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVEROUTPUTRECIEVE.Write_End(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_Serv
 ````
 
-Thread IO Client Shell - Thread IO Client Input Recieve
+## THREAD: NETWORKING Client Output Action Recieve.
 ````
 		Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_Start(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
 		byte[] buffer = new byte[1024];
@@ -907,11 +910,11 @@ Thread IO Client Shell - Thread IO Client Input Recieve
 		Avril_FSD.Library_For_WriteEnableForThreadsAt_SERVERINPUTACTION.Write_End(Avril_FSD.Library_For_Server_Concurrency.Get_program_WriteEnableStack_ServerInputAction(), 0);
 ````
 
-STACK Client Shell Output Recieve
+## STACK: Client Shell Output Recieve
 line 8:	private Avril_FSD.ClientAssembly.Outputs.Output[] _doublebuffer_Client_Output_Recieve;
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/engine/Output_Instance.cs
 
-Thread IO Client Shell - Thread_IO_Client Output Recieve
+## THREAD: Client Shell Output Recieve.
 https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/Networking_Client.cs
 ````
  Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTOUTPUTRECIEVE.Write_Start(obj.Get_client().Get_execute().Get_program_WriteQue_C_OR(), 1);
@@ -931,7 +934,8 @@ https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP
                             Avril_FSD.Library_For_WriteEnableForThreadsAt_CLIENTOUTPUTRECIEVE.Write_End(obj.Get_client().Get_execute().Get_program_WriteQue_C_OR(), 1);
 ````
 
-Client Concurrency
+## Client Concurrency
+https://github.com/OpenFSD/Avril_Full_Stack_Development_Template/blob/master/APP_ClientAssembly/engine/Concurrent.cs
 ````
 public void Thread_Concurrent(byte threadId)
         {

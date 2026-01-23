@@ -47,6 +47,9 @@ Version 17.13.4
 ### OpenTK
 Version: 2.0
 
+#### Tutorial(s): Neo Kabuto's Blog
+ - https://neokabuto.blogspot.com/p/tutorials.html
+   
 ### .Net.
 Version: .Net 8.0
 

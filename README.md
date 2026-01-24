@@ -54,6 +54,7 @@ Version: 2.0
 
 #### Tutorial(s): Neo Kabuto's Blog
  - https://neokabuto.blogspot.com/p/tutorials.html
+ - https://github.com/neokabuto/OpenTKTutorialContent?tab=readme-ov-file
    
 ### .Net.
 Version: .Net 8.0
